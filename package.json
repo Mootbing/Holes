@@ -8,7 +8,8 @@
     "react-dom": "^18.1.0",
     "react-scripts": "5.0.1",
     "web-vitals": "^2.1.4",
-    "mdb-react-ui-kit": "./mdb-react-ui-kit-5.0.0.tgz"
+    "mdb-react-ui-kit": "./mdb-react-ui-kit-5.0.0.tgz",
+    "mdb-react-file-upload": "./plugins/file-upload.tgz"
   },
   "scripts": {
     "start": "react-scripts start",

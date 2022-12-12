@@ -64,11 +64,11 @@ const WordCard = ({word = "bad at cod", example = "The cow left his __BLANK__ ba
                     check();
                   }
                 }}
-              style={{display: "inline", backgroundColor: "#202020", border: "none", borderBottom: "1px solid #fff", color: "white", width: 100}}/>}
+              style={{display: "inline", backgroundColor: "#202020", border: "none", borderBottom: "1px solid #fff", paddingInlineStart: 10, color: "white", width: 100}}/>}
             </>)}
           </MDBContainer>
           
-          {needsHint && <p style={{marginBottom: 25, color: "#aeaeae"}}><i>{definition}</i></p>}
+          {needsHint && <p style={{marginBottom: 25, color: "#aeaeae"}}><i>Definition: {definition}</i></p>}
           
           <center style={{position: "absolute", right: 0}}>
           <MDBContainer flex>
@@ -183,7 +183,7 @@ function App() {
         /></> : <div style={{width: "100%", height: zen ? eachHeight : "100%", overflow: (zen ? "hidden" : "show")}}>
           <MDBBtn onClick={() => {
             setZen(!zen);
-          }} style={{position: "fixed", right: 25, bottom: 25,  backgroundColor: (zen ? "#2d2d2d" : "#fff"), color: "#faf", borderRadius: 15, height: 50, width: 150, boxShadow: "none"}}><MDBIcon icon="sun" className="me-2" />Zen Mode</MDBBtn>
+          }} style={{position: "fixed", right: 25, bottom: 25,  backgroundColor: (zen ? "#2d2d2d" : "#fff"), color: "#faf", borderRadius: 15, height: 50, width: 150, boxShadow: "none", zIndex: 1}}><MDBIcon icon="sun" className="me-2" />Zen Mode</MDBBtn>
           {exampled.map((struct) => {
             if (struct === undefined || struct.results === undefined)
             {

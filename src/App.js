@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { MDBBtn, MDBCard, MDBContainer, MDBIcon, MDBInput, MDBModal, MDBTextArea } from 'mdb-react-ui-kit';
+import { MDBBtn, MDBCard, MDBContainer, MDBIcon, MDBInput, MDBModal, MDBTextArea, MDBTooltip } from 'mdb-react-ui-kit';
 
 import { MDBFileUpload } from 'mdb-react-file-upload';
 import { key } from './Secrets';
@@ -72,21 +72,29 @@ const WordCard = ({word = "bad at cod", example = "The cow left his __BLANK__ ba
           
           <center style={{position: "absolute", right: 0}}>
           <MDBContainer flex>
-            <MDBBtn onClick={() => {
-              check();
-            }} style={{position: "absolute", right: "36vw", width: 140, backgroundColor: "#2d2d2d", color: "#aea", boxShadow: "none", borderRadius: 100}}><MDBIcon icon="check-circle" className="me-2"/></MDBBtn>
+            {/* <MDBTooltip tag="span" placement="top" title="Check"> */}
+              <MDBBtn onClick={() => {
+                check();
+              }} style={{position: "absolute", right: "36vw", width: 140, backgroundColor: "#2d2d2d", color: "#aea", boxShadow: "none", borderRadius: 100}}><MDBIcon icon="check-circle" className="me-2"/></MDBBtn>
+              {/* </MDBTooltip> */}
             </MDBContainer>
 
-            {!needsHint &&<MDBBtn onClick={() => {
+            {!needsHint && <MDBTooltip tag="span" placement="top" title="Show Definition"><MDBBtn onClick={() => {
               setNeedsHint(true);
-            }} style={{width: 60, backgroundColor: "#2d2d2d", color: "#fff", boxShadow: "none", borderRadius: 100}} className="me-2"><MDBIcon icon="question-circle" /></MDBBtn>}
-            <MDBBtn onClick={() => {
-              setState("revealed");
-              setCorrectState("incorrect");
-            }} style={{width: 60, backgroundColor: "#2d2d2d", color: "#ff9494", boxShadow: "none", borderRadius: 100}} className="me-2"><MDBIcon icon="retweet" /></MDBBtn>
-            <MDBBtn onClick={() => {
-              setState("done");
-            }} style={{width: 60, backgroundColor: "#2d2d2d", color: "#ff9494", boxShadow: "none", borderRadius: 100}} className="me-2"><MDBIcon icon="ban" /></MDBBtn>
+            }} style={{width: 60, backgroundColor: "#2d2d2d", color: "#fff", boxShadow: "none", borderRadius: 100}} className="me-2"><MDBIcon icon="question-circle" /></MDBBtn></MDBTooltip>}
+
+            <MDBTooltip tag="span" placement="top" title="Reveal">
+              <MDBBtn onClick={() => {
+                setState("revealed");
+                setCorrectState("incorrect");
+              }} style={{width: 60, backgroundColor: "#2d2d2d", color: "#ff9494", boxShadow: "none", borderRadius: 100}} className="me-2"><MDBIcon icon="retweet" /></MDBBtn>
+            </MDBTooltip>
+
+            <MDBTooltip tag="span" placement="top" title="Skip">
+              <MDBBtn onClick={() => {
+                setState("done");
+              }} style={{width: 60, backgroundColor: "#2d2d2d", color: "#ff9494", boxShadow: "none", borderRadius: 100}} className="me-2"><MDBIcon icon="ban" /></MDBBtn>
+            </MDBTooltip>
             </center>
         </center>}
         {state === "revealed" && <center>

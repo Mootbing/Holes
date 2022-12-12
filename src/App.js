@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { MDBBtn, MDBCard, MDBContainer, MDBIcon, MDBInput, MDBTextArea } from 'mdb-react-ui-kit';
+import { MDBBtn, MDBCard, MDBContainer, MDBIcon, MDBInput, MDBModal, MDBTextArea } from 'mdb-react-ui-kit';
 
 import { MDBFileUpload } from 'mdb-react-file-upload';
 import { key } from './Secrets';
@@ -50,14 +50,21 @@ const WordCard = ({word = "bad at cod", example = "The cow left his __BLANK__ ba
       <MDBCard style={{backgroundColor: "#202020", borderRadius: 15, marginTop: -25, padding: 25, marginBottom: 20, width: "100%", border: correctState === "correct" ?  "2px solid #aea" :  correctState === "incorrect" ? "2px solid #ff9494" : "none"}}>
         {state === "answering" && <center>
           <MDBContainer flex style={{marginBottom: 25}}>
-            {example.split("__BLANK__").map((word, index) => <>
-              <p style={{display: "inline"}}>{word}</p>
+            {example.split("__BLANK__").map((part, index) => <>
+              <p style={{display: "inline"}}>{part}</p>
               {index != example.split("__BLANK__").length - 1 && 
-              <input 
+              <input
+                className="me-2 ms-2" 
                 onChange={(e) => {
                   setValue(e.target.value);
                 }}
-              id={word + example + definition} style={{display: "inline", backgroundColor: "#202020", border: "none", borderBottom: "1px solid #fff", color: "white", width: 100}}/>}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter")
+                  {
+                    check();
+                  }
+                }}
+              style={{display: "inline", backgroundColor: "#202020", border: "none", borderBottom: "1px solid #fff", color: "white", width: 100}}/>}
             </>)}
           </MDBContainer>
           
@@ -75,6 +82,7 @@ const WordCard = ({word = "bad at cod", example = "The cow left his __BLANK__ ba
             }} style={{width: 60, backgroundColor: "#2d2d2d", color: "#fff", boxShadow: "none", borderRadius: 100}} className="me-2"><MDBIcon icon="question-circle" /></MDBBtn>}
             <MDBBtn onClick={() => {
               setState("revealed");
+              setCorrectState("incorrect");
             }} style={{width: 60, backgroundColor: "#2d2d2d", color: "#ff9494", boxShadow: "none", borderRadius: 100}} className="me-2"><MDBIcon icon="retweet" /></MDBBtn>
             <MDBBtn onClick={() => {
               setState("done");
@@ -82,14 +90,20 @@ const WordCard = ({word = "bad at cod", example = "The cow left his __BLANK__ ba
             </center>
         </center>}
         {state === "revealed" && <center>
-          <h2 style={{color: "#aea"}}>{word[0].toUpperCase() + word.slice(1)}</h2>
-          <p>{example.replace("__BLANK__", word)}</p>
+          <h2 style={{color: correctState === "correct" ? "#aea" :  "#ff9494"}}>{word[0].toUpperCase() + word.slice(1)}</h2>
+          <MDBContainer flex style={{marginBottom: 25}}>
+            {example.split("__BLANK__").map((part, index) => <>
+              <p style={{display: "inline"}}>{part}</p>
+              {index != example.split("__BLANK__").length - 1 && 
+              <b style={{color: correctState === "correct" ? "#aea" :  "#ff9494"}}>{word}</b>}
+            </>)}
+          </MDBContainer>
           
           <center style={{position: "absolute", right: 0, bottom: -10}}>
           <MDBContainer flex>
             <MDBBtn onClick={() => {
               setState("done");
-            }} style={{position: "absolute", right: "36vw", bottom: 0, width: 140, backgroundColor: "#2d2d2d", color: "#aea", boxShadow: "none", borderRadius: 100}}><MDBIcon icon="check-circle" className="me-2"/>Continue</MDBBtn>
+            }} style={{position: "absolute", right: "36vw", bottom: 0, width: 140, backgroundColor: "#2d2d2d", color: correctState === "correct" ? "#aea" :  "#ff9494", boxShadow: "none", borderRadius: 100}}><MDBIcon icon="check-circle" className="me-2"/>Continue</MDBBtn>
           </MDBContainer>
           </center>
         </center>}
@@ -105,6 +119,8 @@ function App() {
 
   const [eachHeight, setEachHeight] = useState(0);
 
+  const [zen, setZen] = useState(false);
+
 
   useEffect(() => {
     if (exampled.length !== 0 || words.length === 0)
@@ -114,12 +130,21 @@ function App() {
 
     const fetchWords = async () => {
 
-      var wordsExampled = []
+      var wordsExampled = [];
       for (var word of words){
-        console.log("api called")
+        console.log("api called on word: " + word)
         const response = await (await fetch(`https://wordsapiv1.p.rapidapi.com/words/${word}`, options)).json();
         wordsExampled.push(response);
       }
+
+      console.log(wordsExampled)
+
+      //shuffle
+      for (var i = wordsExampled.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        [wordsExampled[i], wordsExampled[j]] = [wordsExampled[j], wordsExampled[i]];
+      }
+
       setExampled(wordsExampled);
     }
 
@@ -155,7 +180,10 @@ function App() {
         style={{backgroundColor: "#2d2d2d", color: "#fff", borderRadius: 15, height: 150}}
         acceptedExtensions={[".txt"]}
         disabledRemoveButton
-        /></> : <div style={{width: "100%", height: eachHeight, overflow: "hidden"}}>
+        /></> : <div style={{width: "100%", height: zen ? eachHeight : "100%", overflow: (zen ? "hidden" : "show")}}>
+          <MDBBtn onClick={() => {
+            setZen(!zen);
+          }} style={{position: "fixed", right: 25, bottom: 25,  backgroundColor: (zen ? "#2d2d2d" : "#fff"), color: "#faf", borderRadius: 15, height: 50, width: 150, boxShadow: "none"}}><MDBIcon icon="sun" className="me-2" />Zen Mode</MDBBtn>
           {exampled.map((struct) => {
             if (struct === undefined || struct.results === undefined)
             {

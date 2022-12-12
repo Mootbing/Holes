@@ -47,7 +47,7 @@ const WordCard = ({word = "bad at cod", example = "The cow left his __BLANK__ ba
 
   return (
     <MDBContainer className="align-items-center justify-content-center d-flex" style={{width: "100%", height: eachHeight}}>
-      <MDBCard style={{backgroundColor: "#202020", borderRadius: 15, marginTop: -25, padding: 25, marginBottom: 20, width: "100%", border: correctState === "incorrect" ? "2px solid #ff9494" : "none"}}>
+      <MDBCard style={{backgroundColor: "#202020", borderRadius: 15, marginTop: -25, padding: 25, marginBottom: 20, width: "100%", border: correctState === "correct" ?  "2px solid #aea" :  correctState === "incorrect" ? "2px solid #ff9494" : "none"}}>
         {state === "answering" && <center>
           <MDBContainer flex style={{marginBottom: 25}}>
             {example.split("__BLANK__").map((word, index) => <>

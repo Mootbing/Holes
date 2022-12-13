@@ -2,7 +2,13 @@ import React, { useEffect, useRef, useState } from 'react';
 import { MDBBtn, MDBCard, MDBContainer, MDBIcon, MDBInput, MDBModal, MDBTextArea, MDBTooltip } from 'mdb-react-ui-kit';
 
 import { MDBFileUpload } from 'mdb-react-file-upload';
-import { key } from './Secrets';
+import { key, openAIAPIKey } from './Secrets';
+
+import { Configuration, OpenAIApi } from "openai";
+const configuration = new Configuration({
+    apiKey: openAIAPIKey,
+});
+const openai = new OpenAIApi(configuration);
 
 const options = {
 	method: 'GET',
@@ -138,22 +144,29 @@ function App() {
 
     const fetchWords = async () => {
 
-      var wordsExampled = [];
-      for (var word of words){
-        console.log("api called on word: " + word)
-        const response = await (await fetch(`https://wordsapiv1.p.rapidapi.com/words/${word}`, options)).json();
-        wordsExampled.push(response);
+      const fitbs = []
+
+      for (var word of words)
+      {
+        const pt = `Make a sentence with ${word} [--++--]`;
+
+        const response = await openai.createCompletion({
+          model: "text-davinci-003",
+          prompt: pt,
+          temperature: 0, 
+          max_tokens: 100,
+          top_p: 1,
+          frequency_penalty: 1,
+          presence_penalty: 1,
+          stop: ["[--++--]"],
+        });
+
+        fitbs.push(response.data.choices[0].text.replaceAll("\n\n", ""));
+
+        // break;
       }
 
-      console.log(wordsExampled)
-
-      //shuffle
-      for (var i = wordsExampled.length - 1; i > 0; i--) {
-        var j = Math.floor(Math.random() * (i + 1));
-        [wordsExampled[i], wordsExampled[j]] = [wordsExampled[j], wordsExampled[i]];
-      }
-
-      setExampled(wordsExampled);
+      setExampled(fitbs);
     }
 
     fetchWords();
@@ -181,8 +194,7 @@ function App() {
           read.readAsBinaryString(files[0]);
 
           read.onloadend = function () {
-            setWords(read.result.split("\n"));
-            console.log(read.result.split("\n"));
+            setWords(read.result.toLowerCase().split("\n"));
           }
         }}
         style={{backgroundColor: "#2d2d2d", color: "#fff", borderRadius: 15, height: 150}}
@@ -192,25 +204,8 @@ function App() {
           <MDBBtn onClick={() => {
             setZen(!zen);
           }} style={{position: "fixed", right: 25, bottom: 25,  backgroundColor: (zen ? "#2d2d2d" : "#fff"), color: "#faf", borderRadius: 15, height: 50, width: 150, boxShadow: "none", zIndex: 1}}><MDBIcon icon="sun" className="me-2" />Zen Mode</MDBBtn>
-          {exampled.map((struct) => {
-            if (struct === undefined || struct.results === undefined)
-            {
-              console.log(struct)
-              return
-            }
-            return struct.results.map((result) => {
-              if (result.examples === undefined)
-              {
-                return
-              }
-              return result.examples.map((example) => {
-                if (example === undefined)
-                {
-                  return
-                }
-                return <WordCard example={example} word={struct.word} definition={result.definition} key={example + struct.word + result.definition}/>
-              })
-            })
+          {exampled.map((example, index) => {
+            return <WordCard example={example} word={words[index]} definition={""} key={example + words[index]}/>
           })}
         </div>}
     </MDBContainer>

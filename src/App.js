@@ -10,14 +10,6 @@ const configuration = new Configuration({
 });
 const openai = new OpenAIApi(configuration);
 
-const options = {
-	method: 'GET',
-	headers: {
-		'X-RapidAPI-Key': key,
-		'X-RapidAPI-Host': 'wordsapiv1.p.rapidapi.com'
-	}
-};
-
 const WordCard = ({word = "bad at cod", example = "The cow left his __BLANK__ back at home.", definition = "skill issue"}) => {
 
   example = example.replace(word, "__BLANK__")
@@ -162,8 +154,6 @@ function App() {
         });
 
         fitbs.push(response.data.choices[0].text.replaceAll("\n\n", ""));
-
-        // break;
       }
 
       setExampled(fitbs);

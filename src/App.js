@@ -12,7 +12,15 @@ const openai = new OpenAIApi(configuration);
 
 const WordCard = ({word = "bad at cod", example = "The cow left his __BLANK__ back at home.", definition = "skill issue"}) => {
 
+  word = word.replace((/  |\r\n|\n|\r|\t/gm),"").toLowerCase();
+  example = example.toLowerCase() 
+  // console.log(example + " replaces " + word + " with __BLANK__")
   example = example.replace(word, "__BLANK__")
+
+  if (!example.includes("__BLANK__"))
+  {
+    example = "We're sorry, but we couldn't find an example for this word.";
+  }
 
   const [state, setState] = useState("answering");
   const [correctState, setCorrectState] = useState("not answered");
@@ -24,10 +32,17 @@ const WordCard = ({word = "bad at cod", example = "The cow left his __BLANK__ ba
   
   useEffect(() => {
     setEachHeight(window.innerHeight - 200);
+
+    if (!example.includes("__BLANK__"))
+    {
+      setCorrectState("correct");
+      setState("revealed");
+      setNeedsHint(true);
+    }
   }, [])
 
   if (state === "done")
-  {
+  { 
     return null;
   }
 
@@ -36,6 +51,7 @@ const WordCard = ({word = "bad at cod", example = "The cow left his __BLANK__ ba
     {
       setCorrectState("correct");
       setState("revealed");
+      setNeedsHint(true);
     }
     else
     {
@@ -68,7 +84,7 @@ const WordCard = ({word = "bad at cod", example = "The cow left his __BLANK__ ba
           
           {needsHint && <p style={{marginBottom: 25, color: "#aeaeae"}}><i>Definition: {definition}</i></p>}
           
-          <center style={{position: "absolute", right: 0}}>
+          <center style={{position: "absolute", right: 0, bottom: -15}}>
           <MDBContainer flex>
             {/* <MDBTooltip tag="span" placement="top" title="Check"> */}
               <MDBBtn onClick={() => {
@@ -105,7 +121,7 @@ const WordCard = ({word = "bad at cod", example = "The cow left his __BLANK__ ba
             </>)}
           </MDBContainer>
           
-          <center style={{position: "absolute", right: 0, bottom: -10}}>
+          <center style={{position: "absolute", right: 0, bottom: -17}}>
           <MDBContainer flex>
             <MDBBtn onClick={() => {
               setState("done");
@@ -184,7 +200,7 @@ function App() {
           read.readAsBinaryString(files[0]);
 
           read.onloadend = function () {
-            setWords(read.result.toLowerCase().split("\n"));
+            setWords(read.result.replace((/  |\t|\r/gm),"").toLowerCase().split("\n"));
           }
         }}
         style={{backgroundColor: "#2d2d2d", color: "#fff", borderRadius: 15, height: 150}}

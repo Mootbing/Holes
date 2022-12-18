@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/holes/static/css/main.50cbc590.css",
+    "main.js": "/holes/static/js/main.d0e55280.js",
+    "static/js/787.6c7c220b.chunk.js": "/holes/static/js/787.6c7c220b.chunk.js",
+    "index.html": "/holes/index.html",
+    "main.50cbc590.css.map": "/holes/static/css/main.50cbc590.css.map",
+    "main.d0e55280.js.map": "/holes/static/js/main.d0e55280.js.map",
+    "787.6c7c220b.chunk.js.map": "/holes/static/js/787.6c7c220b.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.50cbc590.css",
+    "static/js/main.d0e55280.js"
+  ]
+}

@@ -162,7 +162,7 @@ function App() {
 
     if (!window.location.href.includes("?words="))
     {
-      window.location.href = window.location.href + "?words=" + words.join(",");
+      window.location.href = window.location.href + "?words=" + encodeURI(words.join(","));
       return;
     }
 
@@ -203,7 +203,7 @@ function App() {
     if (new URLSearchParams(window.location.search).get("words"))
     {
       setWords(
-        new URLSearchParams(window.location.search).get("words").split(",").map((word) => word.trim())
+        decodeURI(new URLSearchParams(window.location.search).get("words")).split(",").map((word) => word.trim())
       );
     }
   }, [])

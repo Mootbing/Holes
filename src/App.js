@@ -36,7 +36,7 @@ const WordCard = ({word = "bad at cod", example = "The cow left his __BLANK__ ba
     fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`)
     .then(response => response.json())
     .then(data => {
-      setDefinition(data[0].meanings[0].definitions[0].definition);
+      setDefinition(data[0].meanings[0].partOfSpeech + " | " + data[0].meanings[0].definitions[0].definition);
     });
   }, [])
   

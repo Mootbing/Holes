@@ -103,7 +103,7 @@ const WordCard = ({word = "bad at cod", example = "The cow left his __BLANK__ ba
               {/* </MDBTooltip> */}
             </MDBContainer>
 
-            {!needsHint && <MDBTooltip tag="span" placement="top" title="Show Definition"><MDBBtn onClick={() => {
+            {true && <MDBTooltip tag="span" placement="top" title="Show Definition"><MDBBtn onClick={() => {
               setNeedsHint(true);
             }} style={{width: 60, backgroundColor: "#2d2d2d", color: "#fff", boxShadow: "none", borderRadius: 100}} className="me-2"><MDBIcon icon="question-circle" /></MDBBtn></MDBTooltip>}
 

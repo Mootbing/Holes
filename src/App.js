@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { MDBBtn, MDBCard, MDBContainer, MDBIcon, MDBInput, MDBModal, MDBTextArea, MDBTooltip } from 'mdb-react-ui-kit';
+import { MDBBtn, MDBCard, MDBContainer, MDBIcon, MDBInput, MDBModal, MDBModalBody, MDBModalHeader, MDBTextArea, MDBTooltip } from 'mdb-react-ui-kit';
 
 import { MDBFileUpload } from 'mdb-react-file-upload';
 import { key, openAIAPIKey } from './Secrets';
@@ -10,7 +10,7 @@ const configuration = new Configuration({
 });
 const openai = new OpenAIApi(configuration);
 
-const WordCard = ({word = "bad at cod", example = "The cow left his __BLANK__ back at home.", definition = "skill issue"}) => {
+const WordCard = ({word = "bad at cod", example = "The cow left his __BLANK__ back at home."}) => {
 
   word = word.replace((/  |\r\n|\n|\r|\t/gm),"").toLowerCase();
   example = example.toLowerCase() 
@@ -29,6 +29,16 @@ const WordCard = ({word = "bad at cod", example = "The cow left his __BLANK__ ba
   const [value, setValue] = useState("");
 
   const [eachHeight, setEachHeight] = useState(0);
+
+  const [definition, setDefinition] = useState("We're sorry, but we couldn't find a definition for this word.");
+
+  useEffect(() => {
+    fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`)
+    .then(response => response.json())
+    .then(data => {
+      setDefinition(data[0].meanings[0].partOfSpeech + " | " + data[0].meanings[0].definitions[0].definition);
+    });
+  }, [])
   
   useEffect(() => {
     setEachHeight(window.innerHeight - 200);
@@ -93,7 +103,7 @@ const WordCard = ({word = "bad at cod", example = "The cow left his __BLANK__ ba
               {/* </MDBTooltip> */}
             </MDBContainer>
 
-            {!needsHint && <MDBTooltip tag="span" placement="top" title="Show Definition"><MDBBtn onClick={() => {
+            {true && <MDBTooltip tag="span" placement="top" title="Show Definition"><MDBBtn onClick={() => {
               setNeedsHint(true);
             }} style={{width: 60, backgroundColor: "#2d2d2d", color: "#fff", boxShadow: "none", borderRadius: 100}} className="me-2"><MDBIcon icon="question-circle" /></MDBBtn></MDBTooltip>}
 
@@ -142,14 +152,19 @@ function App() {
   const [eachHeight, setEachHeight] = useState(0);
 
   const [zen, setZen] = useState(false);
-
-  const [showWordBank, setShowWordBank] = useState(false);
-
+  const [sharing, setSharing] = useState(false);
+  // const [showWordBank, setShowWordBank] = useState(false);
 
   useEffect(() => {
     if (exampled.length !== 0 || words.length === 0)
     {
       return
+    }
+
+    if (!window.location.href.includes("?words="))
+    {
+      window.location.href = window.location.href + "?words=" + encodeURI(words.join(","));
+      return;
     }
 
     const fetchWords = async () => {
@@ -185,6 +200,15 @@ function App() {
     setEachHeight(window.innerHeight - 400);
   }, [window.innerHeight])
 
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("words"))
+    {
+      setWords(
+        decodeURI(new URLSearchParams(window.location.search).get("words")).split(",").map((word) => word.trim())
+      );
+    }
+  }, [])
+
   return (
     <MDBContainer style={{paddingTop: 75, color: "#fff"}}>
       {words.length === 0 ? <>
@@ -208,12 +232,36 @@ function App() {
         style={{backgroundColor: "#2d2d2d", color: "#fff", borderRadius: 15, height: 150}}
         acceptedExtensions={[".txt"]}
         disabledRemoveButton
-        /></> : <div style={{width: "100%", height: zen ? eachHeight : "100%", overflow: (zen ? "hidden" : "show")}}>
+        /></> : <div style={{width: "100%", justifyContent: "center", height: zen ? eachHeight : "100%", overflow: (zen ? "hidden" : "show")}}>
+          {sharing && <div style={{width: "100%", marginBottom: 25, height: "80%", borderRadius: 25, backgroundColor: "#202020"}}>
+            {/* <p style={{paddingTop: 15, fontSize: 25, textAlign: "center", width: "100%"}}>Link To This Set</p> */}
+            <input style={{width: "100%", padding: 20, backgroundColor: "#303030", color: "white", border: "none", borderTopLeftRadius: 25, borderTopRightRadius: 25}} label="Link" value={window.location.href} />
+            <button style={{margin: 20, borderRadius: 15, border: "none", padding: 10}} onClick={() => {
+              navigator.clipboard.writeText(window.location.href);
+            }}>Copy</button>
+            <button style={{backgroundColor: "#202020", color: "white", margin: 20, borderRadius: 15, border: "none", padding: 10}} onClick={() => {
+              setSharing(false);
+            }}>Close</button>
+          </div>}
+          {true && <div style={{width: "100%", height: "80%", borderRadius: 25, padding: 15, backgroundColor: "#202020", flexDirection: "row", flex: 1}}>
+            <details style={{paddingTop: 15, fontSize: 25, textAlign: "center", width: "100%"}}>
+              <summary><MDBIcon icon="university" className="me-2" />Word Bank</summary>
+              <div style={{width: "100%", height: 500, overflow: "scroll", overflowX: "hidden"}}>
+              {words.map((word) => <div style={{margin: 5, fontSize: 15, padding: 10, borderRadius: 15, backgroundColor: "#303030", color: "white"}}>{word}</div>)}
+              </div>
+            </details>
+          </div>}
           <MDBBtn onClick={() => {
             setZen(!zen);
-          }} style={{position: "fixed", right: 25, bottom: 25,  backgroundColor: (zen ? "#2d2d2d" : "#fff"), color: "#faf", borderRadius: 15, height: 50, width: 150, boxShadow: "none", zIndex: 1}}><MDBIcon icon="sun" className="me-2" />Zen Mode</MDBBtn>
+            setSharing(false);
+            // setShowWordBank(false);
+          }} style={{position: "fixed", right: 25, bottom: 25,  backgroundColor: (zen ? "#2d2d2d" : "#fff"), color: (!zen ? "#2d2d2d" : "#fff"), borderRadius: 15, height: 50, width: 150, boxShadow: "none", zIndex: 1}}><MDBIcon icon="sun" className="me-2" />Zen Mode</MDBBtn>
+          <MDBBtn onClick={() => {
+            setZen(false);
+            setSharing(!sharing)
+          }} style={{position: "fixed", right: 200, bottom: 25,  backgroundColor: (sharing ? "#2d2d2d" : "#fff"), color: (!sharing ? "#2d2d2d" : "#fff"), borderRadius: 15, height: 50, width: 150, boxShadow: "none", zIndex: 1}}><MDBIcon icon="share" className="me-2" />Share List</MDBBtn>
           {exampled.map((example, index) => {
-            return <WordCard example={example} word={words[index]} definition={""} key={example + words[index]}/>
+            return <WordCard example={example} word={words[index]} key={example + words[index]}/>
           })}
         </div>}
     </MDBContainer>

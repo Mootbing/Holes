@@ -143,6 +143,8 @@ function App() {
 
   const [zen, setZen] = useState(false);
 
+  const [showWordBank, setShowWordBank] = useState(false);
+
 
   useEffect(() => {
     if (exampled.length !== 0 || words.length === 0)

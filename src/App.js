@@ -95,13 +95,11 @@ const WordCard = ({word = "bad at cod", example = "The cow left his __BLANK__ ba
           {needsHint && <p style={{marginBottom: 25, color: "#aeaeae"}}><i>Definition: {definition}</i></p>}
           
           <center style={{position: "absolute", right: 0, bottom: -15}}>
-          <MDBContainer flex>
-            {/* <MDBTooltip tag="span" placement="top" title="Check"> */}
-              <MDBBtn onClick={() => {
-                check();
-              }} style={{position: "absolute", right: "36vw", width: 140, backgroundColor: "#2d2d2d", color: "#aea", boxShadow: "none", borderRadius: 100}}><MDBIcon icon="check-circle" className="me-2"/></MDBBtn>
-              {/* </MDBTooltip> */}
-            </MDBContainer>
+            <MDBTooltip tag="span" placement="top" title="Check">
+            <MDBBtn className='me-5' onClick={() => {
+              check();
+            }} style={{width: 140, backgroundColor: "#2d2d2d", color: "#aea", boxShadow: "none", borderRadius: 100}}><MDBIcon icon="check-circle" className="me-2"/></MDBBtn>
+            </MDBTooltip>
 
             {!needsHint && <MDBTooltip tag="span" placement="top" title="Show Definition"><MDBBtn onClick={() => {
               setNeedsHint(true);
@@ -156,7 +154,7 @@ const WordCard = ({word = "bad at cod", example = "The cow left his __BLANK__ ba
                 }
               }));
               setState("done");
-            }} style={{position: "absolute", right: "36vw", bottom: 0, width: 140, backgroundColor: "#2d2d2d", color: correctState === "correct" ? "#aea" :  "#ff9494", boxShadow: "none", borderRadius: 100}}><MDBIcon icon="check-circle" className="me-2"/>Continue</MDBBtn>
+            }} style={{width: 140, backgroundColor: "#2d2d2d", color: "#aea", boxShadow: "none", borderRadius: 100}}><MDBIcon icon="check-circle" className="me-2"/>Continue</MDBBtn>
           </MDBContainer>
           </center>
         </center>}
@@ -165,12 +163,28 @@ const WordCard = ({word = "bad at cod", example = "The cow left his __BLANK__ ba
   )
 }
 
+const WordbankCard = ({word, words, setDefine}) => {
+  return <div style={{margin: 5, fontSize: 15, padding: 10, borderRadius: 15, backgroundColor: "#303030", color: "white",
+    textDecoration: (words.includes(word) ? "none" : "line-through"),
+    color: (words.includes(word) ? "white" : "grey")
+  }}>
+    <p style={{display: "inline"}}>{word}</p>
+    <a style={{display: "inline", marginInlineStart: 15, backgroundColor: "white", paddingLeft: 10, paddingRight: 10, paddingTop: 2, paddingBottom: 2, borderRadius: 20}} onClick={() => {
+      setDefine(word);
+    }}>
+      <MDBIcon style={{display: "inline", color: "#121212"}}  icon="book" />
+      <p style={{display: "inline", color: "#121212"}}> Define</p>
+    </a>
+  </div>
+}
+
 function App() {
 
   const [words, setWords] = useState([]);
   const [initialWords, setInitialWords] = useState([]);
   const [exampled, setExampled] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [define, setDefine] = useState("");
 
   const [eachHeight, setEachHeight] = useState(0);
 
@@ -213,7 +227,7 @@ function App() {
         const response = await openai.createCompletion({
           model: "text-davinci-003",
           prompt: pt,
-          temperature: 0, 
+          temperature: 0.9, 
           max_tokens: 100,
           top_p: 1,
           frequency_penalty: 1,
@@ -272,7 +286,7 @@ function App() {
         style={{backgroundColor: "#2d2d2d", color: "#fff", borderRadius: 15, height: 150}}
         acceptedExtensions={[".txt"]}
         disabledRemoveButton
-        /></> : loading ? <div style={{backgroundImage: "url('https://shortpixel.com/img/spinner2.gif')", width: "140px", height: "140px"}}/> : <div style={{width: "100%", justifyContent: "center", height: zen ? eachHeight : "100%", overflow: (zen ? "hidden" : "show")}}>
+        /></> : loading ? <div style={{backgroundImage: "url('https://shortpixel.com/img/spinner2.gif')", width: "140px", height: "140px", color: "white"}}><p style={{paddingTop: 160}}>Loading... <br/> (Sorry for bad UI)</p></div> : <div style={{width: "100%", justifyContent: "center", height: zen ? eachHeight : "100%", overflow: (zen ? "hidden" : "show")}}>
           {sharing && <div style={{width: "100%", marginBottom: 25, height: "80%", borderRadius: 25, backgroundColor: "#202020"}}>
             {/* <p style={{paddingTop: 15, fontSize: 25, textAlign: "center", width: "100%"}}>Link To This Set</p> */}
             <input style={{width: "100%", padding: 20, backgroundColor: "#303030", color: "white", border: "none", borderTopLeftRadius: 25, borderTopRightRadius: 25}} label="Link" value={window.location.href} />
@@ -289,22 +303,28 @@ function App() {
             <details style={{paddingTop: 15, fontSize: 25, textAlign: "center", width: "100%"}}>
               <summary><MDBIcon icon="university" className="me-2" />Word Bank</summary>
               <div style={{width: "100%", height: 500, overflow: "scroll", overflowX: "hidden"}}>
-              {initialWords.map((word) => <div style={{margin: 5, fontSize: 15, padding: 10, borderRadius: 15, backgroundColor: "#303030", color: "white",
-              textDecoration: (words.includes(word) ? "none" : "line-through"),
-              color: (words.includes(word) ? "white" : "grey")
-            }}>{word}</div>)}
+              {!define && initialWords.map((word) => <WordbankCard setDefine={setDefine} word={word} words={words}/>)}
+              {define && <div>
+                <a style={{backgroundColor: "#000", paddingLeft: 10, paddingRight: 10, paddingTop: 2, paddingBottom: 2, borderRadius: 20}} onClick={() => {
+                  setDefine("");
+                }}>
+                  <MDBIcon style={{display: "inline", color: "#ff9494"}} icon="times" size='xs'/>
+                  <p style={{paddingInlineStart: 5, display: "inline", color: "#ff9494", fontSize: 16}}> Back To List</p>
+                </a>
+                <iframe style={{width: "100%", height: 500, border: "none"}} src={`https://www.bing.com/search?q=define ${define}`}></iframe>
+              </div>}
               </div>
             </details>
           </div>}
-          <MDBBtn onClick={() => {
+          {/* <MDBBtn onClick={() => {
             setZen(!zen);
             setSharing(false);
             // setShowWordBank(false);
-          }} style={{position: "fixed", right: 25, bottom: 25,  backgroundColor: (zen ? "#2d2d2d" : "#fff"), color: (!zen ? "#2d2d2d" : "#fff"), borderRadius: 15, height: 50, width: 150, boxShadow: "none", zIndex: 1}}><MDBIcon icon="sun" className="me-2" />Zen Mode</MDBBtn>
+          }} style={{position: "fixed", right: 25, bottom: 25,  backgroundColor: (zen ? "#2d2d2d" : "#fff"), color: (!zen ? "#2d2d2d" : "#fff"), borderRadius: 15, height: 50, width: 150, boxShadow: "none", zIndex: 1}}><MDBIcon icon="sun" className="me-2" />Zen Mode</MDBBtn> */}
           <MDBBtn onClick={() => {
             setZen(false);
             setSharing(!sharing)
-          }} style={{position: "fixed", right: 200, bottom: 25,  backgroundColor: (sharing ? "#2d2d2d" : "#fff"), color: (!sharing ? "#2d2d2d" : "#fff"), borderRadius: 15, height: 50, width: 150, boxShadow: "none", zIndex: 1}}><MDBIcon icon="share" className="me-2" />Share List</MDBBtn>
+          }} style={{position: "fixed", right: 25, bottom: 25,  backgroundColor: (sharing ? "#2d2d2d" : "#fff"), color: (!sharing ? "#2d2d2d" : "#fff"), borderRadius: 15, height: 50, width: 150, boxShadow: "none", zIndex: 1}}><MDBIcon icon="share" className="me-2" />Share List</MDBBtn>
           {exampled.map((example, index) => {
             if (words[index] === "")
             {

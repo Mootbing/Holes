@@ -10,6 +10,8 @@ const configuration = new Configuration({
 });
 const openai = new OpenAIApi(configuration);
 
+let doneWords = [];
+
 const WordCard = ({word = "bad at cod", example = "The cow left his __BLANK__ back at home."}) => {
 
   word = word.replace((/  |\r\n|\n|\r|\t/gm),"").toLowerCase();
@@ -103,7 +105,7 @@ const WordCard = ({word = "bad at cod", example = "The cow left his __BLANK__ ba
               {/* </MDBTooltip> */}
             </MDBContainer>
 
-            {true && <MDBTooltip tag="span" placement="top" title="Show Definition"><MDBBtn onClick={() => {
+            {!needsHint && <MDBTooltip tag="span" placement="top" title="Show Definition"><MDBBtn onClick={() => {
               setNeedsHint(true);
             }} style={{width: 60, backgroundColor: "#2d2d2d", color: "#fff", boxShadow: "none", borderRadius: 100}} className="me-2"><MDBIcon icon="question-circle" /></MDBBtn></MDBTooltip>}
 
@@ -116,6 +118,7 @@ const WordCard = ({word = "bad at cod", example = "The cow left his __BLANK__ ba
 
             <MDBTooltip tag="span" placement="top" title="Skip">
               <MDBBtn onClick={() => {
+                doneWords.push(word);
                 setState("done");
               }} style={{width: 60, backgroundColor: "#2d2d2d", color: "#ff9494", boxShadow: "none", borderRadius: 100}} className="me-2"><MDBIcon icon="ban" /></MDBBtn>
             </MDBTooltip>
@@ -134,6 +137,7 @@ const WordCard = ({word = "bad at cod", example = "The cow left his __BLANK__ ba
           <center style={{position: "absolute", right: 0, bottom: -17}}>
           <MDBContainer flex>
             <MDBBtn onClick={() => {
+              doneWords.push(word);
               setState("done");
             }} style={{position: "absolute", right: "36vw", bottom: 0, width: 140, backgroundColor: "#2d2d2d", color: correctState === "correct" ? "#aea" :  "#ff9494", boxShadow: "none", borderRadius: 100}}><MDBIcon icon="check-circle" className="me-2"/>Continue</MDBBtn>
           </MDBContainer>
@@ -238,6 +242,8 @@ function App() {
             <input style={{width: "100%", padding: 20, backgroundColor: "#303030", color: "white", border: "none", borderTopLeftRadius: 25, borderTopRightRadius: 25}} label="Link" value={window.location.href} />
             <button style={{margin: 20, borderRadius: 15, border: "none", padding: 10}} onClick={() => {
               navigator.clipboard.writeText(window.location.href);
+              setSharing(false);
+              alert("Copied to clipboard!");
             }}>Copy</button>
             <button style={{backgroundColor: "#202020", color: "white", margin: 20, borderRadius: 15, border: "none", padding: 10}} onClick={() => {
               setSharing(false);
@@ -247,7 +253,9 @@ function App() {
             <details style={{paddingTop: 15, fontSize: 25, textAlign: "center", width: "100%"}}>
               <summary><MDBIcon icon="university" className="me-2" />Word Bank</summary>
               <div style={{width: "100%", height: 500, overflow: "scroll", overflowX: "hidden"}}>
-              {words.map((word) => <div style={{margin: 5, fontSize: 15, padding: 10, borderRadius: 15, backgroundColor: "#303030", color: "white"}}>{word}</div>)}
+              {words.map((word) => <div style={{margin: 5, fontSize: 15, padding: 10, borderRadius: 15, backgroundColor: "#303030", color: "white",
+              textDecoration: (doneWords.includes(word) ? "line-through" : "none")
+            }}>{word}</div>)}
               </div>
             </details>
           </div>}
@@ -261,7 +269,7 @@ function App() {
             setSharing(!sharing)
           }} style={{position: "fixed", right: 200, bottom: 25,  backgroundColor: (sharing ? "#2d2d2d" : "#fff"), color: (!sharing ? "#2d2d2d" : "#fff"), borderRadius: 15, height: 50, width: 150, boxShadow: "none", zIndex: 1}}><MDBIcon icon="share" className="me-2" />Share List</MDBBtn>
           {exampled.map((example, index) => {
-            return <WordCard example={example} word={words[index]} key={example + words[index]}/>
+            return <WordCard setWords={setWords} example={example} word={words[index]} key={example + words[index]}/>
           })}
         </div>}
     </MDBContainer>

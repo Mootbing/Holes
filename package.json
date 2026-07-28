@@ -5,7 +5,7 @@
   "description": "Vocabulary builder w/ AI.",
   "private": true,
   "dependencies": {
-    "gh-pages": "^4.0.0",
+    "gh-pages": "^5.0.0",
     "mdb-react-file-upload": "./plugins/file-upload.tgz",
     "mdb-react-ui-kit": "./mdb-react-ui-kit-5.0.0.tgz",
     "openai": "^3.1.0",
